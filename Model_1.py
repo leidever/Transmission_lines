@@ -4,59 +4,36 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 SPEED_OF_LIGHT = 3.0E8
-SOURCE_FREQUENCY = 10.0E6
-
-# gamma = alpha + j*beta - propagation constant
-alpha = 0
-def beta(f):
-    beta=(2*np.pi/SPEED_OF_LIGHT)*f
-    return beta
+GENERATOR_FREQUENCY = 10.0E6
+LINE_LENGTH = 7.5
 
 # Load, transmission (transformator unit), source (0)
 Z_L = 75.0
 Z_0 = 50.0
 Z_T = np.sqrt(Z_0*Z_L)
 
-# Voltage reflection coefficient
-def G (Z_L, Z_0):
-    G  = (Z_L - Z_0) / (Z_L + Z_0)
-    return G
+N = 1000;
 
-# SWR
-def SWR(G):
-    SWR = (1 + G) / (1 - G)
-    return SWR
+F_min = 0.0; F_max = 20.0E6; dF = (F_max - F_min)/N
 
-N = 10
-F_min = 0.0
-F_max = 30.0E6
-delta = (F_max - F_min)/N
-x = [None] * (N)
+F = [None] * (N); G = [None] * (N); SWR = [None] * (N)
+
+def Z_in(Z_L, Z_0, phase):
+    Z_in = Z_0 * (Z_L - 1j*Z_0*np.tan(phase)) / (Z_0 - 1j*Z_L*np.tan(phase))
+    return Z_in
 
 for i in range(N):
-    x[i] = F_min + delta*(i+1)
-    print (beta(x[i]))
-    
-
-print (x)
-
-
-
-# All losses are zero, use tan instead of tanh
-def Z_in(l):
-    Z_in = Z_T*((Z_L - 1j*Z_T*np.tan(beta*l))/(Z_T-1j*Z_L*np.tan(beta*l)))
-    return abs(Z_in)
-
-
-N = 100
-x = np.linspace(0.0, l_0, N)
-
-y = Z_in(x)
+    F[i] = F_min + dF*(i+1)
+    phase = 2*np.pi/SPEED_OF_LIGHT*LINE_LENGTH*F[i]
+    Z =  abs(Z_in(Z_L, Z_T, phase)) 
+    G[i]= (Z - Z_0) / (Z + Z_0)
+    SWR[i] = (1 + G[i]) / (1 - G[i])
 
 fig = plt.figure()
-plt.plot(x, y, label = "Zin")
-plt.xlabel('l, meters')
-plt.ylabel('Z_in, Ohm')
+plt.plot(F, SWR, label = "SWR")
+
+plt.xlabel('F, Hz')
+plt.ylabel('SWR')
 
 plt.legend()
 plt.grid(True)
