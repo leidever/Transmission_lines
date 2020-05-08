@@ -3,39 +3,34 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-SPEED_OF_LIGHT = 3.0E8
-GENERATOR_FREQUENCY = 10.0E6
-LINE_LENGTH = 7.5
+lightspeed = 300_000_000.0            # m|s
+F_source = 10_000_000.0            # Hz
+L_line = lightspeed / F_source       # meters
 
 # Load, transmission (transformator unit), source (0)
-Z_L = 75.0
-Z_0 = 50.0
-Z_T = np.sqrt(Z_0*Z_L)
+Z_load = 75.0
+Z_source = 50.0
+Z_line = np.sqrt(Z_load*Z_source)     # Z_T
 
-N = 1000;
 
-F_min = 0.0; F_max = 20.0E6; dF = (F_max - F_min)/N
+f = np.linspace(0.0, 2*F_source, 100)
 
-F = [None] * (N); G = [None] * (N); SWR = [None] * (N)
+phase = (2*np.pi*L_line/lightspeed)*f
+#print("phase:", phase)
 
-def Z_in(Z_L, Z_0, phase):
-    Z_in = Z_0 * (Z_L - 1j*Z_0*np.tan(phase)) / (Z_0 - 1j*Z_L*np.tan(phase))
-    return Z_in
+Z_in = Z_line * (Z_load + 1j*Z_line*np.tan(phase)) / (Z_load + 1j*Z_line*np.tan(phase))
+#print("Z_in:", Z_in)
 
-for i in range(N):
-    F[i] = F_min + dF*(i+1)
-    phase = 2*np.pi/SPEED_OF_LIGHT*LINE_LENGTH*F[i]
-    Z =  abs(Z_in(Z_L, Z_T, phase)) 
-    G[i]= (Z - Z_0) / (Z + Z_0)
-    SWR[i] = (1 + G[i]) / (1 - G[i])
+G = np.abs((Z_in - 1) / (Z_in + 1))
+#print("G:", G)
 
-fig = plt.figure()
-plt.plot(F, SWR, label = "SWR")
+SWR = (1 + G) / (1 - G)
 
-plt.xlabel('F, Hz')
-plt.ylabel('SWR')
+fig, ax = plt.subplots()                        # будет 1 график, на нем:
+ax.plot(f, G, color="blue", label="G")          # функция G, синий, надпись G
+ax.plot(f, SWR, color="red", label="SWR")       # функция SWR, красный, надпись SWR
+ax.set_xlabel("f")                              # подпись у горизонтальной оси x
+ax.set_ylabel("G, SWR")                          # подпись у вертикальной оси y
+ax.legend()                                      # показывать условные обозначения
 
-plt.legend()
-plt.grid(True)
-
-plt.show()
+plt.show()                                      # показать рисунок
