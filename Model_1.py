@@ -3,33 +3,35 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-lightspeed = 300_000_000.0            # m|s
-F_source = 10_000_000.0            # Hz
-L_line = lightspeed / F_source       # meters
+F_source = 10.0            # МHz
+L_line = 7.5       # meters
+betta = 20.96   # 1/meters
 
 # Load, transmission (transformator unit), source (0)
 Z_load = 75.0
 Z_source = 50.0
 Z_line = np.sqrt(Z_load*Z_source)     # Z_T
 
-
 f = np.linspace(0.0, 2*F_source, 100)
+#print (f)
 
-phase = (2*np.pi*L_line/lightspeed)*f
+koef = 2*3.1415*7.5/299.8
+
+phase = koef*f
 #print("phase:", phase)
 
-Z_in = Z_line * (Z_load + 1j*Z_line*np.tan(phase)) / (Z_load + 1j*Z_line*np.tan(phase))
+Z_in = Z_line * (Z_load + 1j*Z_line*np.tan(phase)) / (Z_line + 1j*Z_load*np.tan(phase))
 #print("Z_in:", Z_in)
 
-G = np.abs((Z_in - 1) / (Z_in + 1))
+G = np.abs((Z_in - Z_source) / (Z_in + Z_source))
 #print("G:", G)
 
-SWR = (1 + G) / (1 - G)
+SWR = np.abs((1 + G) / (1 - G))
 
 fig, ax = plt.subplots()                        # будет 1 график, на нем:
 ax.plot(f, G, color="blue", label="G")          # функция G, синий, надпись G
 ax.plot(f, SWR, color="red", label="SWR")       # функция SWR, красный, надпись SWR
-ax.set_xlabel("f")                              # подпись у горизонтальной оси x
+ax.set_xlabel("f, MHz")                              # подпись у горизонтальной оси x
 ax.set_ylabel("G, SWR")                          # подпись у вертикальной оси y
 ax.legend()                                      # показывать условные обозначения
 
