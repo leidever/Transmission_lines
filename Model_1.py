@@ -1,7 +1,10 @@
 #from __future__ import division
 
-import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
+
+matplotlib.rcParams["axes.grid"] = True
+matplotlib.rcParams["figure.figsize"] = 16,12
 
 F_source = 10.0            # МHz
 L_line = 7.5       # meters
@@ -13,26 +16,41 @@ Z_source = 50.0
 Z_line = np.sqrt(Z_load*Z_source)     # Z_T
 
 f = np.linspace(0.0, 2*F_source, 100)
-#print (f)
+G = np.zeros(100)
 
-koef = 2*3.1415*7.5/299.8
+def calculate_G (f, koef):
+    phase = koef*f
+    Z_in = Z_line * (Z_load + 1j*Z_line*np.tan(phase)) / (Z_line + 1j*Z_load*np.tan(phase))
+    G = np.abs((Z_in - Z_source) / (Z_in + Z_source))
+    return G
 
-phase = koef*f
-#print("phase:", phase)
-
-Z_in = Z_line * (Z_load + 1j*Z_line*np.tan(phase)) / (Z_line + 1j*Z_load*np.tan(phase))
-#print("Z_in:", Z_in)
-
-G = np.abs((Z_in - Z_source) / (Z_in + Z_source))
-#print("G:", G)
-
-SWR = np.abs((1 + G) / (1 - G))
-
-fig, ax = plt.subplots()                        # будет 1 график, на нем:
+fig, ax = plt.subplots()                # будет 1 график, на нем:
+koef = 2*3.1415*L_line/299.8            # с учетом размерностей
+G = calculate_G(f, koef)
 ax.plot(f, G, color="blue", label="G")          # функция G, синий, надпись G
-ax.plot(f, SWR, color="red", label="SWR")       # функция SWR, красный, надпись SWR
+
+
+koef = 2*3.1415*L_line*1.1/299.8            # с учетом размерностей
+G = calculate_G(f, koef)
+ax.plot(f, G, color="red", linestyle='--', label="G при 1.1L")   # функция G, синий, надпись G
+
+koef = 2*3.1415*L_line*1.05/299.8            # с учетом размерностей
+G = calculate_G(f, koef)
+ax.plot(f, G, color="red", linestyle='-.', label="G при 1.05L")
+
+koef = 2*3.1415*L_line*0.95/299.8            # с учетом размерностей
+G = calculate_G(f, koef)
+ax.plot(f, G, color="red", linestyle='-.', label="G при .95L")
+
+koef = 2*3.1415*L_line*0.9/299.8            # с учетом размерностей
+G = calculate_G(f, koef)
+ax.plot(f, G, color="red", linestyle='--', label="G при 0.9L")   # функция G, синий, надпись G
+
+
+
+
 ax.set_xlabel("f, MHz")                              # подпись у горизонтальной оси x
-ax.set_ylabel("G, SWR")                          # подпись у вертикальной оси y
+ax.set_ylabel("G")                          # подпись у вертикальной оси y
 ax.legend()                                      # показывать условные обозначения
 
 plt.show()                                      # показать рисунок
