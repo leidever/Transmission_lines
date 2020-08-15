@@ -29,8 +29,8 @@ G = np.abs((Z_in - Z_source) / (Z_in + Z_source))
 SWR = np.abs((1 + G) / (1 - G))
 
 fig, ax = plt.subplots()                        # будет 1 график, на нем:
-ax.plot(f, G, color="blue", label="G")          # функция G, синий, надпись G
-ax.plot(f, SWR, color="red", label="SWR")       # функция SWR, красный, надпись SWR
+ax.plot(l, G, color="blue", label="G")          # функция G, синий, надпись G
+ax.plot(l, SWR, color="red", label="SWR")       # функция SWR, красный, надпись SWR
 ax.set_xlabel("l, m")                              # подпись у горизонтальной оси x
 ax.set_ylabel("G, SWR")                          # подпись у вертикальной оси y
 ax.legend()                                      # показывать условные обозначения
