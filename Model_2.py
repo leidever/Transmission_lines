@@ -20,7 +20,7 @@ koef =2*3.1415*10E6/2.998E8
 phase = koef*l
 #print("phase:", phase)
 
-Z_in = Z_line * (Z_load + 1j*Z_line*np.tan(phase)) / (Z_line + 1j*Z_load*np.tan(phase))
+Z_in = Z_line * (Z_load - 1j*Z_line*np.tan(phase)) / (Z_line - 1j*Z_load*np.tan(phase))
 #print("Z_in:", Z_in)
 
 G = np.abs((Z_in - Z_source) / (Z_in + Z_source))

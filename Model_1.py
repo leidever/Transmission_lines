@@ -19,7 +19,7 @@ f = np.linspace(0.0, 2*F_source, 1000)
 
 def calculate_G (f, koef):
     phase = koef*f
-    Z_in = Z_line * (Z_load + 1j*Z_line*np.tan(phase)) / (Z_line + 1j*Z_load*np.tan(phase))
+    Z_in = Z_line * (Z_load - 1j*Z_line*np.tan(phase)) / (Z_line - 1j*Z_load*np.tan(phase))
     G = np.abs((Z_in - Z_source) / (Z_in + Z_source))
     return G
 
